@@ -1,6 +1,6 @@
 variable "vpc_cidr" {
   description = "The CIDR block for the VPC"
-  default     = "10.2.0.0/16"
+  default     = "10.1.0.0/16"
 }
 
 variable "tags" {
@@ -14,6 +14,6 @@ variable "tags" {
 
 variable "subnet_cidr" {
   description = "The CIDR block for the public subnet"
-  default     = "10.2.1.0/24"
+  default     = "10.1.1.0/24"
 }
 
