@@ -7,7 +7,7 @@ resource "aws_vpc" "main" {
   tags_all             = var.tags
 }
 
-# create public and private subnet
+# create public and private subnets
 resource "aws_subnet" "subnets" {
   count                   = length(var.subnet_cidrs)
   vpc_id                  = aws_vpc.main.id
@@ -28,7 +28,7 @@ resource "aws_internet_gateway" "gw" {
   })
 }
 
-# create public route table
+# create public and private route tables
 resource "aws_route_table" "rt" {
   count  = length(aws_subnet.subnets)
   vpc_id = aws_vpc.main.id
@@ -38,10 +38,23 @@ resource "aws_route_table" "rt" {
   })
 }
 
-# associate igw with default route table
+# associate public subnet with public route table
 resource "aws_route_table_association" "public" {
   subnet_id      = aws_subnet.subnets[0].id
   route_table_id = aws_route_table.rt[0].id
+}
+
+# associate private subnet with private route table
+resource "aws_route_table_association" "private" {
+  subnet_id      = aws_subnet.subnets[1].id
+  route_table_id = aws_route_table.rt[1].id
+}
+
+# create a route in public rt using the igw
+resource "aws_route" "public" {
+  route_table_id         = aws_route_table.rt[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.gw.id
 }
 
 # create NACL for public subnet
@@ -134,5 +147,14 @@ resource "aws_security_group" "public_subnet_sg" {
 
   tags = merge(var.tags, {
     Name = "public-sg"
+  })
+}
+
+# create security group for private subnet
+resource "aws_security_group" "private_sg" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(var.tags, {
+    Name = "private-sg"
   })
 }
