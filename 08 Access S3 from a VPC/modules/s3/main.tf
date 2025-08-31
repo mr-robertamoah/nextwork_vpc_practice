@@ -1,7 +1,8 @@
 # S3 Bucket for VPC access demonstration
 resource "aws_s3_bucket" "main" {
-  bucket = var.bucket_name
-  tags   = var.tags
+  bucket        = var.bucket_name
+  force_destroy = true  # Allow Terraform to delete bucket with objects
+  tags          = var.tags
 }
 
 # S3 Bucket versioning
